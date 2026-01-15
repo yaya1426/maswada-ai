@@ -6,6 +6,7 @@ interface AutoSaveIndicatorProps {
   isSaving: boolean
   lastSaved: Date | null
   hasUnsavedChanges: boolean
+  hasUserEdited: boolean
   className?: string
 }
 
@@ -13,6 +14,7 @@ export function AutoSaveIndicator({
   isSaving,
   lastSaved,
   hasUnsavedChanges,
+  hasUserEdited,
   className,
 }: AutoSaveIndicatorProps) {
   const intl = useIntl()
@@ -24,6 +26,11 @@ export function AutoSaveIndicator({
     if (seconds < 60) return `${seconds}s`
     if (seconds < 3600) return `${Math.floor(seconds / 60)}m`
     return `${Math.floor(seconds / 3600)}h`
+  }
+
+  // Don't show any indicators until the user has made an edit
+  if (!hasUserEdited) {
+    return null
   }
 
   if (isSaving) {

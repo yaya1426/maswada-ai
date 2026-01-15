@@ -9,7 +9,7 @@ export const messages = {
 
     // Header
     "header.appName": "Maswada AI",
-    "header.tagline": "AI-Powered Notes",
+    "header.tagline": "Your Smart Note-Taking Companion",
 
     // Home Page
     "home.hero.badge": "Design System",
@@ -146,7 +146,7 @@ export const messages = {
 
     // Header
     "header.appName": "مسودة AI",
-    "header.tagline": "ملاحظات بالذكاء الاصطناعي",
+    "header.tagline": "رفيقك الذكي لتدوين الملاحظات",
 
     // Home Page
     "home.hero.badge": "نظام التصميم",

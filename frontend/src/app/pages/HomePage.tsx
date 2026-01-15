@@ -4,6 +4,7 @@ import { FormattedMessage } from "react-intl"
 import { Sparkles, FileText, Languages, Zap } from "lucide-react"
 import { GlassCard } from "@/components/common/GlassCard"
 import { Button } from "@/components/ui/button"
+import { useLocale } from "@/contexts/LocaleContext"
 
 const features = [
   {
@@ -29,6 +30,8 @@ const features = [
 ]
 
 export function HomePage() {
+  const { locale } = useLocale()
+
   return (
     <div className="space-y-12">
       {/* Hero section */}
@@ -45,21 +48,16 @@ export function HomePage() {
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <SignedOut>
-            <Link to="/sign-up">
+            <Link to={`/${locale}/sign-up`}>
               <Button size="lg" className="gap-2">
                 <FormattedMessage id="home.hero.getStarted" />
               </Button>
             </Link>
           </SignedOut>
           <SignedIn>
-            <Link to="/notes">
+            <Link to={`/${locale}/notes`}>
               <Button size="lg" className="gap-2">
                 <FormattedMessage id="home.hero.viewNotes" />
-              </Button>
-            </Link>
-            <Link to="/notes/new">
-              <Button variant="outline" size="lg">
-                <FormattedMessage id="nav.createNote" />
               </Button>
             </Link>
           </SignedIn>

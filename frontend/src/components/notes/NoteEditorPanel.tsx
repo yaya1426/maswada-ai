@@ -1,16 +1,18 @@
 import { useState, useEffect, useMemo, useRef } from "react"
 import { FormattedMessage, useIntl } from "react-intl"
-import { ArrowLeft, Trash2, Sparkles } from "lucide-react"
+import { ArrowLeft, Trash2 } from "lucide-react"
 import { useNotes } from "@/contexts/NotesContext"
 import { useToast } from "@/contexts/ToastContext"
 import { useAutoSave } from "@/hooks/useAutoSave"
+import { useAIFeatures } from "@/hooks/useAIFeatures"
 import { detectTextDirection } from "@/lib/textDirection"
 import { GlassCard } from "@/components/common/GlassCard"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/forms/Input"
 import { TextArea } from "@/components/forms/TextArea"
 import { AutoSaveIndicator } from "./AutoSaveIndicator"
-import { AIFeaturesPanel } from "@/components/ai/AIFeaturesPanel"
+import { AIToolbar } from "@/components/ai/AIToolbar"
+import { AISidePanel } from "@/components/ai/AISidePanel"
 import {
   Dialog,
   DialogContent,
@@ -35,7 +37,7 @@ export function NoteEditorPanel({ noteId, onClose, className }: NoteEditorPanelP
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [showAIFeatures, setShowAIFeatures] = useState(false)
+  const [activeSidePanelFeature, setActiveSidePanelFeature] = useState<"summarize" | "rewrite" | "translate" | null>(null)
 
   const titleInputRef = useRef<HTMLInputElement>(null)
   const contentTextAreaRef = useRef<HTMLTextAreaElement>(null)
@@ -47,10 +49,8 @@ export function NoteEditorPanel({ noteId, onClose, className }: NoteEditorPanelP
   )
 
   // Update local state when note changes (switching between notes)
-  // eslint-disable-next-line
   useEffect(() => {
     if (currentNote) {
-      console.log('[Editor] Loading note:', currentNote.id)
       setTitle(currentNote.title)
       setContent(currentNote.content)
     } else {
@@ -63,13 +63,14 @@ export function NoteEditorPanel({ noteId, onClose, className }: NoteEditorPanelP
   const contentDir = useMemo(() => detectTextDirection(content), [content])
 
   const autoSaveData = useMemo(() => {
-    const data = { noteId, title, content }
-    console.log('[Editor] autoSaveData updated:', data)
-    return data
+    return { noteId, title, content }
   }, [noteId, title, content])
 
   // Auto-save hook - only saves when title or content changes
-  const { isSaving, lastSaved, hasUnsavedChanges } = useAutoSave(autoSaveData)
+  const { isSaving, lastSaved, hasUnsavedChanges, hasUserEdited } = useAutoSave(autoSaveData)
+
+  // AI Features hook
+  const aiFeatures = useAIFeatures(noteId || "", content)
 
   // Focus title input when new note is created
   useEffect(() => {
@@ -135,18 +136,10 @@ export function NoteEditorPanel({ noteId, onClose, className }: NoteEditorPanelP
               isSaving={isSaving}
               lastSaved={lastSaved}
               hasUnsavedChanges={hasUnsavedChanges}
+              hasUserEdited={hasUserEdited}
             />
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowAIFeatures(!showAIFeatures)}
-              className="gap-2"
-            >
-              <Sparkles className="h-4 w-4" />
-              <span className="hidden sm:inline">AI</span>
-            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -161,6 +154,20 @@ export function NoteEditorPanel({ noteId, onClose, className }: NoteEditorPanelP
           </div>
         </div>
 
+        {/* AI Toolbar */}
+        <AIToolbar
+          onSummarize={() => {
+            aiFeatures.handleSummarize()
+            setActiveSidePanelFeature("summarize")
+          }}
+          onRewrite={() => setActiveSidePanelFeature("rewrite")}
+          onTranslate={() => {
+            aiFeatures.handleTranslate()
+            setActiveSidePanelFeature("translate")
+          }}
+          loading={aiFeatures.loading}
+        />
+
         {/* Editor */}
         <div className="flex flex-1 flex-col gap-4 overflow-y-auto">
           {/* Title Input */}
@@ -168,10 +175,7 @@ export function NoteEditorPanel({ noteId, onClose, className }: NoteEditorPanelP
             ref={titleInputRef}
             type="text"
             value={title}
-            onChange={(e) => {
-              console.log('[Editor] Title changed:', e.target.value.substring(0, 20))
-              setTitle(e.target.value)
-            }}
+            onChange={(e) => setTitle(e.target.value)}
             placeholder={intl.formatMessage({ id: "note.form.titlePlaceholder" })}
             className="text-2xl font-bold border-none bg-transparent px-0 focus-visible:ring-0"
           />
@@ -181,10 +185,7 @@ export function NoteEditorPanel({ noteId, onClose, className }: NoteEditorPanelP
             <TextArea
               ref={contentTextAreaRef}
               value={content}
-              onChange={(e) => {
-                console.log('[Editor] Content changed:', e.target.value.substring(0, 20))
-                setContent(e.target.value)
-              }}
+              onChange={(e) => setContent(e.target.value)}
               placeholder={intl.formatMessage({ id: "note.form.contentPlaceholder" })}
               className="min-h-[400px] resize-none border-none bg-transparent px-0 focus-visible:ring-0"
               rows={20}
@@ -203,10 +204,21 @@ export function NoteEditorPanel({ noteId, onClose, className }: NoteEditorPanelP
         </div>
       </GlassCard>
 
-      {/* AI Features Panel */}
-      {showAIFeatures && (
-        <AIFeaturesPanel noteId={noteId} noteContent={content} />
-      )}
+      {/* AI Side Panel */}
+      <AISidePanel
+        open={activeSidePanelFeature !== null}
+        onClose={() => setActiveSidePanelFeature(null)}
+        activeFeature={activeSidePanelFeature}
+        summary={aiFeatures.summary}
+        translation={aiFeatures.translation}
+        rewriteResult={aiFeatures.rewriteResult}
+        loading={aiFeatures.loading}
+        copied={aiFeatures.copied}
+        onCopy={aiFeatures.handleCopy}
+        onSaveSummary={aiFeatures.handleSaveSummary}
+        onReplaceContent={aiFeatures.handleReplaceContent}
+        onRewriteWithMode={aiFeatures.handleRewrite}
+      />
 
       {/* Delete confirmation dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

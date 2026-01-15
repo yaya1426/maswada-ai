@@ -1,12 +1,25 @@
 import { Languages } from "lucide-react"
+import { useLocation, useNavigate } from "react-router-dom"
 import { useLocale } from "@/contexts/LocaleContext"
 import { Button } from "@/components/ui/button"
 
 export function LanguageSwitcher() {
   const { locale, setLocale } = useLocale()
+  const location = useLocation()
+  const navigate = useNavigate()
 
   const toggleLocale = () => {
-    setLocale(locale === "en" ? "ar" : "en")
+    const nextLocale = locale === "en" ? "ar" : "en"
+    setLocale(nextLocale)
+
+    const segments = location.pathname.split("/")
+    const suffix = `${location.search}${location.hash}`
+    if (segments.length > 1 && (segments[1] === "en" || segments[1] === "ar")) {
+      segments[1] = nextLocale
+      navigate(`${segments.join("/")}${suffix}`, { replace: true })
+    } else {
+      navigate(`/${nextLocale}${location.pathname}${suffix}`, { replace: true })
+    }
   }
 
   return (

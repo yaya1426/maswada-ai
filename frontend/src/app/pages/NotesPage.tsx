@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import { useIntl } from "react-intl"
 import { useNotes } from "@/contexts/NotesContext"
 import { useToast } from "@/contexts/ToastContext"
+import { useLocale } from "@/contexts/LocaleContext"
 import { NotesListPanel } from "@/components/notes/NotesListPanel"
 import { NoteEditorPanel } from "@/components/notes/NoteEditorPanel"
 import { NotesListSkeleton } from "@/components/ui/loading"
@@ -13,6 +14,7 @@ export function NotesPage() {
   const { notes, loading, fetchNotes, createNote } = useNotes()
   const toast = useToast()
   const intl = useIntl()
+  const { locale } = useLocale()
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(urlNoteId || null)
   const [isMobileEditorView, setIsMobileEditorView] = useState(false)
 
@@ -29,9 +31,9 @@ export function NotesPage() {
       // Auto-select first note when notes are loaded and no note in URL
       const firstNoteId = notes[0].id
       setSelectedNoteId(firstNoteId)
-      navigate(`/${firstNoteId}`, { replace: true })
+      navigate(`/${locale}/notes/${firstNoteId}`, { replace: true })
     }
-  }, [urlNoteId, notes, selectedNoteId, navigate])
+  }, [urlNoteId, notes, selectedNoteId, navigate, locale])
 
   const handleNewNote = async () => {
     try {
@@ -40,7 +42,7 @@ export function NotesPage() {
         content: "",
       })
       // Navigate to the new note's URL
-      navigate(`/${newNote.id}`)
+      navigate(`/${locale}/notes/${newNote.id}`)
       setSelectedNoteId(newNote.id)
       setIsMobileEditorView(true) // Show editor on mobile
     } catch (error) {
@@ -50,15 +52,15 @@ export function NotesPage() {
 
   const handleSelectNote = (noteId: string) => {
     // Navigate to the note's URL
-    navigate(`/${noteId}`)
+    navigate(`/${locale}/notes/${noteId}`)
     setSelectedNoteId(noteId)
     setIsMobileEditorView(true) // Show editor on mobile when note selected
   }
 
   const handleCloseEditor = () => {
     setIsMobileEditorView(false)
-    // Navigate back to root when closing editor on mobile
-    navigate("/")
+    // Navigate back to notes list when closing editor on mobile
+    navigate(`/${locale}/notes`)
   }
 
   if (loading && notes.length === 0) {

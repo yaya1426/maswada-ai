@@ -1,9 +1,11 @@
 import { useAuth } from "@clerk/clerk-react"
-import { Navigate, Outlet, useLocation } from "react-router-dom"
+import { Navigate, Outlet, useLocation, useParams } from "react-router-dom"
 
 export function ProtectedRoute() {
   const { isLoaded, isSignedIn } = useAuth()
   const location = useLocation()
+  const { locale } = useParams<{ locale?: string }>()
+  const resolvedLocale = locale === "en" || locale === "ar" ? locale : "ar"
 
   // Show loading state while Clerk is initializing
   if (!isLoaded) {
@@ -16,7 +18,7 @@ export function ProtectedRoute() {
 
   // Redirect to sign-in if not authenticated, preserving the intended destination
   if (!isSignedIn) {
-    return <Navigate to="/sign-in" state={{ from: location }} replace />
+    return <Navigate to={`/${resolvedLocale}/sign-in`} state={{ from: location }} replace />
   }
 
   // Render child routes if authenticated

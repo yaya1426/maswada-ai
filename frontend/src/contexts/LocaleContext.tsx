@@ -14,13 +14,15 @@ const LOCALE_STORAGE_KEY = "maswada-locale"
 
 interface LocaleProviderProps {
   children: ReactNode
+  routeLocale?: Locale
 }
 
-export function LocaleProvider({ children }: LocaleProviderProps) {
+export function LocaleProvider({ children, routeLocale }: LocaleProviderProps) {
   const [locale, setLocaleState] = useState<Locale>(() => {
-    // Initialize from localStorage or default to 'en'
+    // Initialize from route, localStorage, or default to 'ar'
+    if (routeLocale) return routeLocale
     const stored = localStorage.getItem(LOCALE_STORAGE_KEY)
-    return (stored === "ar" || stored === "en") ? stored : "en"
+    return stored === "ar" || stored === "en" ? stored : "ar"
   })
 
   const dir = locale === "ar" ? "rtl" : "ltr"
@@ -29,6 +31,15 @@ export function LocaleProvider({ children }: LocaleProviderProps) {
     setLocaleState(newLocale)
     localStorage.setItem(LOCALE_STORAGE_KEY, newLocale)
   }
+
+  // Sync locale with route when it changes
+  useEffect(() => {
+    if (!routeLocale) return
+    if (routeLocale !== locale) {
+      setLocaleState(routeLocale)
+      localStorage.setItem(LOCALE_STORAGE_KEY, routeLocale)
+    }
+  }, [routeLocale, locale])
 
   // Update document direction and lang attribute
   useEffect(() => {

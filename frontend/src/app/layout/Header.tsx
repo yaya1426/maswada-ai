@@ -3,9 +3,11 @@ import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react"
 import { FormattedMessage } from "react-intl"
 import { Button } from "@/components/ui/button"
 import { LanguageSwitcher } from "@/components/common/LanguageSwitcher"
+import { useLocale } from "@/contexts/LocaleContext"
 
 export function Header() {
   const { isLoaded } = useUser()
+  const { locale } = useLocale()
 
   return (
     <header className="sticky top-0 z-50 w-full">
@@ -13,7 +15,7 @@ export function Header() {
         <div className="glass-card flex items-center justify-between gap-4 rounded-2xl px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
             <Link
-              to="/"
+              to={`/${locale}/notes`}
               className="text-sm font-semibold tracking-wide"
             >
               <FormattedMessage id="header.appName" />
@@ -23,30 +25,16 @@ export function Header() {
             </span>
           </div>
 
-          <SignedIn>
-            <nav
-              aria-label="Primary"
-              className="hidden items-center gap-4 text-xs font-medium text-muted-foreground sm:flex"
-            >
-              <Link
-                to="/"
-                className="transition-colors hover:text-foreground"
-              >
-                <FormattedMessage id="nav.myNotes" />
-              </Link>
-            </nav>
-          </SignedIn>
-
           <div className="flex items-center gap-2">
             <LanguageSwitcher />
             
             <SignedOut>
-              <Link to="/sign-in">
+              <Link to={`/${locale}/sign-in`}>
                 <Button variant="outline" size="sm">
                   <FormattedMessage id="nav.signIn" />
                 </Button>
               </Link>
-              <Link to="/sign-up">
+              <Link to={`/${locale}/sign-up`}>
                 <Button size="sm">
                   <FormattedMessage id="nav.signUp" />
                 </Button>
@@ -54,7 +42,7 @@ export function Header() {
             </SignedOut>
 
             <SignedIn>
-              {isLoaded && <UserButton afterSignOutUrl="/sign-in" />}
+              {isLoaded && <UserButton afterSignOutUrl={`/${locale}/sign-in`} />}
             </SignedIn>
           </div>
         </div>
