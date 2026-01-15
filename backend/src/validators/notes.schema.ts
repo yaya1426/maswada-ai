@@ -3,12 +3,12 @@ import { z } from 'zod';
 // Language removed - AI detects it automatically from content
 export const createNoteSchema = z.object({
   title: z.string().min(1).max(255),
-  content: z.string().min(1),
+  content: z.string(), // Allow empty content for new notes
 });
 
 export const updateNoteSchema = z.object({
   title: z.string().min(1).max(255).optional(),
-  content: z.string().min(1).optional(),
+  content: z.string().optional(), // Allow empty content
   summary: z.string().nullable().optional(),
 });
 

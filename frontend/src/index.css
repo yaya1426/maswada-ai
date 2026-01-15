@@ -96,3 +96,39 @@
     @apply rounded-2xl bg-white/70 backdrop-blur-xl border border-black/10 shadow-xl;
   }
 }
+
+/* ============================================
+   RTL SUPPORT
+   Arabic language text direction support
+   ============================================ */
+@layer base {
+  /* RTL text direction */
+  [dir="rtl"] {
+    direction: rtl;
+    text-align: start;
+  }
+
+  [dir="ltr"] {
+    direction: ltr;
+    text-align: start;
+  }
+}
+
+@layer utilities {
+  /* RTL-aware spacing utilities */
+  .me-2 {
+    margin-inline-end: 0.5rem;
+  }
+  
+  .ms-2 {
+    margin-inline-start: 0.5rem;
+  }
+  
+  .pe-4 {
+    padding-inline-end: 1rem;
+  }
+  
+  .ps-4 {
+    padding-inline-start: 1rem;
+  }
+}
