@@ -45,7 +45,6 @@ export interface RewriteResponse {
 export interface TranslateRequest {
   noteId?: string;
   text?: string;
-  target: 'en' | 'ar';
 }
 
 export interface TranslateResponse {

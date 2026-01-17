@@ -20,7 +20,6 @@ export const rewriteSchema = z.object({
 export const translateSchema = z.object({
   noteId: z.string().uuid().optional(),
   text: z.string().min(1).optional(),
-  target: z.enum(['en', 'ar']),
 }).refine(
   (data) => data.noteId || data.text,
   { message: 'Either noteId or text must be provided' }

@@ -10,6 +10,7 @@ import { NotFoundPage } from "@/app/pages/NotFoundPage"
 import { SignInPage } from "@/app/pages/SignInPage"
 import { SignUpPage } from "@/app/pages/SignUpPage"
 import { NotesPage } from "@/app/pages/NotesPage"
+import { NoteDetailPage } from "@/app/pages/NoteDetailPage"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import { messages } from "@/i18n/messages"
 
@@ -36,8 +37,8 @@ function LocaleScopedApp() {
             <Route element={<ProtectedRoute />}>
               <Route element={<NotesProvider><AppLayout /></NotesProvider>}>
                 <Route path="notes" element={<NotesPage />} />
-                <Route path="notes/:noteId" element={<NotesPage />} />
-                <Route path="" element={<NotesPage />} />
+                <Route path="notes/:noteId" element={<NoteDetailPage />} />
+                <Route path="" element={<Navigate to="notes" replace />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Route>
             </Route>

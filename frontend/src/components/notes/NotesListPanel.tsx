@@ -76,7 +76,7 @@ export function NotesListPanel({
           onSelectNote(remainingNotes[0].id)
         }
       }
-    } catch (error) {
+    } catch {
       toast.error(intl.formatMessage({ id: "feedback.error" }))
     }
   }
@@ -89,7 +89,7 @@ export function NotesListPanel({
   }
 
   return (
-    <div className={cn("flex w-full flex-col md:w-80 lg:w-96", className)}>
+    <div className={cn("flex w-full flex-col", className)}>
       <GlassCard className="flex h-full flex-col p-4">
         {/* Header */}
         <div className="mb-4 flex items-center justify-between">
@@ -182,17 +182,19 @@ function NoteListItem({ note, isSelected, onSelect, onDelete, formatDate }: Note
     <button
       onClick={onSelect}
       className={cn(
-        "group relative w-full rounded-lg border p-3 text-left transition-colors",
+        "group relative w-full rounded-lg border px-3 py-2 text-left transition-colors",
         isSelected
           ? "border-primary bg-primary/5"
           : "border-border hover:border-primary/50 hover:bg-muted/50"
       )}
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex-1 overflow-hidden">
-          <h3 className="truncate font-medium text-sm">{note.title}</h3>
-          <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{note.content}</p>
-          <p className="mt-2 text-xs text-muted-foreground">{formatDate(note.updatedAt)}</p>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <FileText className="h-4 w-4 text-muted-foreground" />
+          <div className="min-w-0">
+            <h3 className="truncate text-sm font-medium">{note.title}</h3>
+            <span className="sr-only">{formatDate(note.updatedAt)}</span>
+          </div>
         </div>
         <button
           onClick={onDelete}

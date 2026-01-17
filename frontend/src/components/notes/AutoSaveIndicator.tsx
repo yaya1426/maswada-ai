@@ -19,6 +19,13 @@ export function AutoSaveIndicator({
 }: AutoSaveIndicatorProps) {
   const intl = useIntl()
 
+  console.log("[AutoSaveIndicator]", {
+    isSaving,
+    hasUnsavedChanges,
+    hasUserEdited,
+    lastSaved: lastSaved ? lastSaved.toISOString() : null,
+  })
+
   const getTimeAgo = (date: Date) => {
     const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000)
     

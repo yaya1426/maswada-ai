@@ -66,6 +66,7 @@ export const messages = {
     "ai.summarize.button": "Generate Summary",
     "ai.summarize.loading": "Generating summary...",
     "ai.summarize.success": "Summary generated successfully",
+    "ai.summarize.ready": "Summary ready",
     "ai.summarize.save": "Save to Note",
     "ai.summarize.saved": "Summary saved",
 
@@ -119,7 +120,7 @@ export const messages = {
     "notes.editor.unsaved": "Unsaved changes",
     "notes.editor.autoSave": "Auto-save enabled",
     "notes.untitled": "Untitled Note",
-    "notes.backToList": "Back to Notes",
+    "notes.backToList": "Back to all notes",
 
     // Common
     "common.save": "Save",
@@ -135,6 +136,8 @@ export const messages = {
     "common.next": "Next",
     "common.previous": "Previous",
     "common.now": "just now",
+    "common.view": "View",
+    "common.hide": "Hide",
   },
   ar: {
     // Navigation
@@ -203,6 +206,7 @@ export const messages = {
     "ai.summarize.button": "إنشاء ملخص",
     "ai.summarize.loading": "جاري إنشاء الملخص...",
     "ai.summarize.success": "تم إنشاء الملخص بنجاح",
+    "ai.summarize.ready": "الملخص جاهز",
     "ai.summarize.save": "حفظ في الملاحظة",
     "ai.summarize.saved": "تم حفظ الملخص",
 
@@ -256,7 +260,7 @@ export const messages = {
     "notes.editor.unsaved": "تغييرات غير محفوظة",
     "notes.editor.autoSave": "الحفظ التلقائي مفعل",
     "notes.untitled": "ملاحظة بدون عنوان",
-    "notes.backToList": "العودة للملاحظات",
+    "notes.backToList": "العودة لكل الملاحظات",
 
     // Common
     "common.save": "حفظ",
@@ -272,5 +276,7 @@ export const messages = {
     "common.next": "التالي",
     "common.previous": "السابق",
     "common.now": "الآن",
+    "common.view": "عرض",
+    "common.hide": "إخفاء",
   },
 }

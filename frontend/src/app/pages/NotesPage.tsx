@@ -1,39 +1,22 @@
-import { useEffect, useState } from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import { useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import { useIntl } from "react-intl"
 import { useNotes } from "@/contexts/NotesContext"
 import { useToast } from "@/contexts/ToastContext"
 import { useLocale } from "@/contexts/LocaleContext"
 import { NotesListPanel } from "@/components/notes/NotesListPanel"
-import { NoteEditorPanel } from "@/components/notes/NoteEditorPanel"
 import { NotesListSkeleton } from "@/components/ui/loading"
 
 export function NotesPage() {
-  const { noteId: urlNoteId } = useParams<{ noteId?: string }>()
   const navigate = useNavigate()
   const { notes, loading, fetchNotes, createNote } = useNotes()
   const toast = useToast()
   const intl = useIntl()
   const { locale } = useLocale()
-  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(urlNoteId || null)
-  const [isMobileEditorView, setIsMobileEditorView] = useState(false)
 
   useEffect(() => {
     fetchNotes()
   }, [fetchNotes])
-
-  // Sync selected note with URL parameter
-  useEffect(() => {
-    if (urlNoteId) {
-      setSelectedNoteId(urlNoteId)
-      setIsMobileEditorView(true)
-    } else if (notes.length > 0 && !selectedNoteId) {
-      // Auto-select first note when notes are loaded and no note in URL
-      const firstNoteId = notes[0].id
-      setSelectedNoteId(firstNoteId)
-      navigate(`/${locale}/notes/${firstNoteId}`, { replace: true })
-    }
-  }, [urlNoteId, notes, selectedNoteId, navigate, locale])
 
   const handleNewNote = async () => {
     try {
@@ -43,9 +26,7 @@ export function NotesPage() {
       })
       // Navigate to the new note's URL
       navigate(`/${locale}/notes/${newNote.id}`)
-      setSelectedNoteId(newNote.id)
-      setIsMobileEditorView(true) // Show editor on mobile
-    } catch (error) {
+    } catch {
       toast.error(intl.formatMessage({ id: "feedback.error" }))
     }
   }
@@ -53,14 +34,6 @@ export function NotesPage() {
   const handleSelectNote = (noteId: string) => {
     // Navigate to the note's URL
     navigate(`/${locale}/notes/${noteId}`)
-    setSelectedNoteId(noteId)
-    setIsMobileEditorView(true) // Show editor on mobile when note selected
-  }
-
-  const handleCloseEditor = () => {
-    setIsMobileEditorView(false)
-    // Navigate back to notes list when closing editor on mobile
-    navigate(`/${locale}/notes`)
   }
 
   if (loading && notes.length === 0) {
@@ -72,20 +45,12 @@ export function NotesPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] gap-4 overflow-hidden">
-      {/* List View - Left Side */}
+    <div className="h-[calc(100vh-8rem)]">
       <NotesListPanel
-        selectedNoteId={selectedNoteId}
+        selectedNoteId={null}
         onSelectNote={handleSelectNote}
         onNewNote={handleNewNote}
-        className={isMobileEditorView ? "hidden md:flex" : "flex"}
-      />
-
-      {/* Editor View - Right Side */}
-      <NoteEditorPanel
-        noteId={selectedNoteId}
-        onClose={handleCloseEditor}
-        className={!isMobileEditorView && selectedNoteId ? "hidden md:flex" : selectedNoteId ? "flex" : "hidden"}
+        className="h-full"
       />
     </div>
   )

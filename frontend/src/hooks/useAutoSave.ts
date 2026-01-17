@@ -1,111 +1,54 @@
 import { useEffect, useRef, useState, useCallback } from "react"
 import { useNotes } from "@/contexts/NotesContext"
 
-interface AutoSaveResult {
+interface UseAutoSaveParams {
+  noteId: string | null
+  title: string
+  content: string
+  userEditedRef: React.MutableRefObject<boolean>
+}
+
+interface UseAutoSaveReturn {
   isSaving: boolean
   lastSaved: Date | null
   hasUnsavedChanges: boolean
   hasUserEdited: boolean
-  saveNow: () => Promise<void>
 }
 
-interface NoteDraft {
-  noteId: string | null
-  title: string
-  content: string
-}
-
-/**
- * Hook for auto-saving data with debounce
- * @param data - The data to save
- * @param onSave - Function to call when saving
- * @param options - Configuration options
- * @returns Auto-save status and controls
- */
-export function useAutoSave(data: NoteDraft): AutoSaveResult {
+export function useAutoSave({
+  noteId,
+  title,
+  content,
+  userEditedRef,
+}: UseAutoSaveParams): UseAutoSaveReturn {
   const { updateNote } = useNotes()
-  const delay = 3000
-
   const [isSaving, setIsSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
-  const [hasUserEdited, setHasUserEdited] = useState(false)
   
-  const timeoutRef = useRef<number | undefined>(undefined)
-  const previousNoteIdRef = useRef<string | null>(null)
-  const previousTitleRef = useRef<string>("")
-  const previousContentRef = useRef<string>("")
-  const isInitialLoadRef = useRef(true)
-  
-  // Function to perform the actual save
-  const performSave = useCallback(async (dataToSave: NoteDraft) => {
-    if (!dataToSave.noteId) {
-      return
-    }
+  const debounceTimerRef = useRef<number | null>(null)
+  const previousTitleRef = useRef(title)
+  const previousContentRef = useRef(content)
+
+  const saveNote = useCallback(async () => {
+    if (!noteId || !userEditedRef.current) return
 
     try {
       setIsSaving(true)
-      setHasUnsavedChanges(false)
-
-      await updateNote(dataToSave.noteId, {
-        title: dataToSave.title,
-        content: dataToSave.content,
-      })
-
+      await updateNote(noteId, { title, content })
       setLastSaved(new Date())
+      setHasUnsavedChanges(false)
+      previousTitleRef.current = title
+      previousContentRef.current = content
+    } catch (error) {
+      console.error("Failed to auto-save note:", error)
+    } finally {
       setIsSaving(false)
-    } catch {
-      setIsSaving(false)
-      setHasUnsavedChanges(true)
     }
-  }, [updateNote])
+  }, [noteId, title, content, updateNote, userEditedRef])
 
-  // Manual save function
-  const saveNow = useCallback(async () => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-    }
-    await performSave(data)
-  }, [data, performSave])
-
-  // Auto-save effect with debounce
   useEffect(() => {
-    const { noteId, title, content } = data
-
-    // If note changed, reset all state and skip save (user is switching notes)
-    const noteChanged = noteId !== previousNoteIdRef.current
-    if (noteChanged) {
-      previousNoteIdRef.current = noteId
-      previousTitleRef.current = title
-      previousContentRef.current = content
-      isInitialLoadRef.current = false
-      
-      // Clear any pending timeout
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-      }
-      
-      // Reset all auto-save state indicators (deferred to avoid cascading renders)
-      window.setTimeout(() => {
-        setHasUnsavedChanges(false)
-        setIsSaving(false)
-        setLastSaved(null)
-        setHasUserEdited(false) // Reset edit flag for new note
-      }, 0)
-      
-      return
-    }
-
-    // Skip initial load - just store the data
-    if (isInitialLoadRef.current) {
-      isInitialLoadRef.current = false
-      previousNoteIdRef.current = noteId
-      previousTitleRef.current = title
-      previousContentRef.current = content
-      return
-    }
-
-    // Check if data has actually changed
+    // Check if title or content changed
     const titleChanged = title !== previousTitleRef.current
     const contentChanged = content !== previousContentRef.current
 
@@ -113,49 +56,34 @@ export function useAutoSave(data: NoteDraft): AutoSaveResult {
       return
     }
 
-    previousNoteIdRef.current = noteId
-    previousTitleRef.current = title
-    previousContentRef.current = content
-    
-    // Defer state update to avoid cascading renders within effect
-    // Mark that user has made an edit and show unsaved changes indicator
-    window.setTimeout(() => {
-      setHasUserEdited(true)
+    // Mark as having unsaved changes
+    if (userEditedRef.current) {
       setHasUnsavedChanges(true)
-    }, 0)
-
-    // Clear existing timeout
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
     }
 
-    // Set new timeout for debounced save
-    timeoutRef.current = window.setTimeout(() => {
-      performSave(data)
-    }, delay)
+    // Clear existing timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+    }
+
+    // Set new timer for 1 second debounce
+    debounceTimerRef.current = setTimeout(() => {
+      saveNote()
+    }, 1000)
 
     // Cleanup function
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
       }
     }
-  }, [data, delay, performSave])
+  }, [title, content, saveNote, userEditedRef])
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-      }
-    }
-  }, [])
 
   return {
     isSaving,
     lastSaved,
     hasUnsavedChanges,
-    hasUserEdited,
-    saveNow,
+    hasUserEdited: userEditedRef.current,
   }
 }
