@@ -18,16 +18,10 @@ export function errorHandler(
   res: Response,
   next: NextFunction
 ): void {
-  // Enhanced error logging
-  console.error('=== ERROR OCCURRED ===');
-  console.error('Path:', req.method, req.path);
-  console.error('Error:', err.message);
-  console.error('Stack:', err.stack);
-  console.error('=====================');
+  console.error('Error:', err);
 
   // Handle Zod validation errors
   if (err instanceof ZodError) {
-    console.error('[Validation Error] Details:', err.errors);
     res.status(400).json({
       error: 'Validation failed',
       details: err.errors.map((e) => ({
@@ -40,7 +34,6 @@ export function errorHandler(
 
   // Handle operational errors
   if (err instanceof AppError) {
-    console.error(`[App Error] ${err.statusCode}: ${err.message}`);
     res.status(err.statusCode).json({
       error: err.message,
     });
@@ -48,7 +41,6 @@ export function errorHandler(
   }
 
   // Handle unknown errors
-  console.error('[Unknown Error] Sending 500 response');
   res.status(500).json({
     error: 'Internal server error',
   });

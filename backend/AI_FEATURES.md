@@ -42,27 +42,26 @@ You should see: `🤖 OpenAI: Configured ✓`
 
 ### 1. Summarize
 - **Model**: gpt-5-mini
-- **Temperature**: 0.7
 - **Max Tokens**: 500
-- **Languages**: English & Arabic
+- **Language**: Auto-detects from input (English & Arabic)
 - **Use Case**: Generate concise summaries of notes
 
 ### 2. Rewrite
 - **Model**: gpt-5-mini
-- **Temperature**: 0.7
 - **Max Tokens**: 1000
 - **Modes**:
   - `shorter` - Make it more concise
   - `clearer` - Improve clarity
   - `formal` - Professional tone
   - `casual` - Conversational tone
-- **Languages**: English & Arabic
+- **Language**: Auto-detects from input (English & Arabic)
 
 ### 3. Translate
 - **Model**: gpt-5-mini
-- **Temperature**: 0.3 (more deterministic)
 - **Max Tokens**: 1000
-- **Directions**: English ↔ Arabic
+- **Auto-Detection**: Detects source language and translates to the opposite
+  - English → Arabic
+  - Arabic → English
 - **Quality**: Professional translation with GPT-5
 
 ## API Endpoints
@@ -72,35 +71,39 @@ All endpoints require authentication (Bearer token).
 ### POST /api/ai/summarize
 ```json
 {
-  "text": "Your text to summarize...",
-  "language": "en"  // or "ar"
+  "text": "Your text to summarize..."
 }
 ```
 
 Or with a note:
 ```json
 {
-  "noteId": "uuid-of-existing-note",
-  "language": "en"  // optional, defaults to note's language
+  "noteId": "uuid-of-existing-note"
 }
 ```
+
+Response stays in the same language as input.
 
 ### POST /api/ai/rewrite
 ```json
 {
   "text": "Your text to rewrite...",
-  "mode": "clearer",  // shorter | clearer | formal | casual
-  "language": "en"
+  "mode": "clearer"  // shorter | clearer | formal | casual
 }
 ```
+
+Response stays in the same language as input.
 
 ### POST /api/ai/translate
 ```json
 {
-  "text": "Hello world",
-  "target": "ar"  // en or ar
+  "text": "Hello world"
 }
 ```
+
+Auto-detects language and translates:
+- English → Arabic
+- Arabic → English
 
 ## Cost Estimation
 

@@ -1,5 +1,6 @@
 import express, { Express } from 'express';
 import cors from 'cors';
+import { clerkMiddleware } from '@clerk/express';
 import { config } from './config/env';
 import { errorHandler } from './middlewares/errorHandler';
 import healthRouter from './routes/health';
@@ -16,6 +17,9 @@ export function createApp(): Express {
     credentials: true,
   }));
   app.use(express.json());
+  
+  // Clerk authentication middleware
+  app.use(clerkMiddleware());
 
   // Routes
   app.use('/', healthRouter);

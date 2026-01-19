@@ -65,8 +65,7 @@ Content-Type: application/json
 
 {
   "title": "My First Note",
-  "content": "This is the content of my note",
-  "language": "en"
+  "content": "This is the content of my note"
 }
 ```
 
@@ -102,7 +101,6 @@ Authorization: Bearer <your_clerk_token>
       "userId": "user_xxx",
       "title": "My First Note",
       "content": "This is the content of my note",
-      "language": "en",
       "summary": null,
       "createdAt": "2026-01-14T...",
       "updatedAt": "2026-01-14T..."
@@ -126,7 +124,6 @@ Authorization: Bearer <your_clerk_token>
     "userId": "user_xxx",
     "title": "My First Note",
     "content": "This is the content of my note",
-    "language": "en",
     "summary": null,
     "createdAt": "2026-01-14T...",
     "updatedAt": "2026-01-14T..."
@@ -155,7 +152,6 @@ Content-Type: application/json
     "userId": "user_xxx",
     "title": "Updated Title",
     "content": "Updated content",
-    "language": "en",
     "summary": null,
     "createdAt": "2026-01-14T...",
     "updatedAt": "2026-01-14T..."
@@ -186,16 +182,14 @@ Authorization: Bearer <your_clerk_token>
 Content-Type: application/json
 
 {
-  "text": "Long text to summarize...",
-  "language": "en"
+  "text": "Long text to summarize..."
 }
 ```
 
 **Or with noteId:**
 ```json
 {
-  "noteId": "uuid-here",
-  "language": "en"
+  "noteId": "uuid-here"
 }
 ```
 
@@ -206,6 +200,8 @@ Content-Type: application/json
 }
 ```
 
+**Note:** Summary is returned in the same language as the input.
+
 ### 9. Rewrite Text
 
 ```bash
@@ -215,8 +211,7 @@ Content-Type: application/json
 
 {
   "text": "Text to rewrite...",
-  "mode": "clearer",
-  "language": "en"
+  "mode": "clearer"
 }
 ```
 
@@ -229,6 +224,8 @@ Content-Type: application/json
 }
 ```
 
+**Note:** Rewritten text is returned in the same language as the input.
+
 ### 10. Translate Text
 
 ```bash
@@ -237,8 +234,7 @@ Authorization: Bearer <your_clerk_token>
 Content-Type: application/json
 
 {
-  "text": "Hello world",
-  "target": "ar"
+  "text": "Hello world"
 }
 ```
 
@@ -248,6 +244,10 @@ Content-Type: application/json
   "result": "مرحبا بالعالم"
 }
 ```
+
+**Note:** Auto-detects language and translates:
+- English → Arabic
+- Arabic → English
 
 ---
 

@@ -15,7 +15,7 @@ export const config = {
   openai: {
     apiKey: process.env.OPENAI_API_KEY || '',
     organization: process.env.OPENAI_ORGANIZATION_ID || '',
-    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+    model: process.env.OPENAI_MODEL || 'gpt-5-mini',
   },
 };
 
